@@ -1,6 +1,7 @@
 package fr.uge.visualizer.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -18,11 +20,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import fr.uge.visualizer.model.HourlyPrediction
 import fr.uge.visualizer.viewmodel.PredictionViewModel
 
 @Composable
-fun PredictionScreen(viewModel: PredictionViewModel) {
+fun PredictionScreen(viewModel: PredictionViewModel, onNavigateToNotifications: () -> Unit = {}) {
     val stationInfo by viewModel.stationInfo.collectAsState()
     val predictions by viewModel.hourlyPredictions.collectAsState()
 
@@ -35,7 +36,12 @@ fun PredictionScreen(viewModel: PredictionViewModel) {
                     .background(Color(0xFF4F46E5))
                     .padding(16.dp)
             ) {
-                Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Partie gauche avec titre et flèche retour
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -44,32 +50,42 @@ fun PredictionScreen(viewModel: PredictionViewModel) {
                             contentDescription = "Retour",
                             tint = Color.White
                         )
-                        Text(
-                            text = "Prédictions",
-                            color = Color.White,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
+                        Column(modifier = Modifier.padding(start = 8.dp)) {
+                            Text(
+                                text = "Prédictions",
+                                color = Color.White,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Text(
+                                text = "Station ${stationInfo.name}",
+                                color = Color(0xFFE0E7FF),
+                                fontSize = 14.sp
+                            )
+
+                            Text(
+                                text = "Lignes ${stationInfo.lines}",
+                                color = Color(0xFFE0E7FF),
+                                fontSize = 14.sp
+                            )
+                        }
                     }
 
-                    Text(
-                        text = "Station ${stationInfo.name}",
-                        color = Color(0xFFE0E7FF),
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-
-                    Text(
-                        text = "Lignes ${stationInfo.lines}",
-                        color = Color(0xFFE0E7FF),
-                        fontSize = 14.sp
+                    // Ajouter l'icône de notification ici
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "Notifications",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .clickable { onNavigateToNotifications() }
+                            .size(24.dp)
                     )
                 }
             }
         }
     ) { paddingValues ->
-        LazyColumn(
+          LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -155,6 +171,65 @@ fun PredictionScreen(viewModel: PredictionViewModel) {
                                 fontSize = 12.sp,
                                 color = Color.Gray
                             )
+                        }
+                    }
+                }
+            }
+
+            // Ajouter avant la définition des prédictions horaires
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Sélectionner une date",
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+
+                        // Jours de la semaine
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            listOf("L", "M", "M", "J", "V", "S", "D").forEach { day ->
+                                Text(
+                                    text = day,
+                                    color = Color.Gray,
+                                    fontSize = 14.sp
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Jours du mois (version simplifiée)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            for (i in 1..7) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .background(
+                                            if (i == 3) Color(0xFF4F46E5) else Color(0xFFF3F4F6),
+                                            shape = RoundedCornerShape(8.dp)
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = i.toString(),
+                                        color = if (i == 3) Color.White else Color.Black
+                                    )
+                                }
+                            }
                         }
                     }
                 }
