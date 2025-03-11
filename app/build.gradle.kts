@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "fr.uge.visualizer"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "fr.uge.visualizer"
         minSdk = 21
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -50,7 +50,7 @@ android {
 }
 
 dependencies {
-    // Dépendances de base
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -59,16 +59,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation("androidx.navigation:navigation-compose:2.7.5")
-    // Pour la géolocalisation
-    implementation("com.google.android.gms:play-services-location:21.0.1")
-
-    // Icônes pour Material
-    implementation("androidx.compose.material:material-icons-extended:1.5.4")
-    implementation(libs.play.services.location)
-    implementation("androidx.core:core-ktx:1.10.1")
-
-    // Tests
+    implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -76,5 +67,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
 }
+
