@@ -9,11 +9,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,11 +25,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.uge.visualizer.viewmodel.PredictionViewModel
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
-fun PredictionScreen(viewModel: PredictionViewModel, onNavigateToNotifications: () -> Unit = {}) {
+fun PredictionScreen(
+    viewModel: PredictionViewModel,
+    onNavigateToNotifications: () -> Unit = {},
+    onNavigateToStations: () -> Unit = {}
+) {
+    val context = LocalContext.current
     val stationInfo by viewModel.stationInfo.collectAsState()
     val predictions by viewModel.hourlyPredictions.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+
+    // Observer le message toast
+    val toastMessage by viewModel.toastMessage.collectAsState()
+    LaunchedEffect(toastMessage) {
+        toastMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -72,7 +92,7 @@ fun PredictionScreen(viewModel: PredictionViewModel, onNavigateToNotifications: 
                         }
                     }
 
-                    // Ajouter l'icône de notification ici
+                    // Ajouter l'icône de notification
                     Icon(
                         imageVector = Icons.Default.Notifications,
                         contentDescription = "Notifications",
@@ -83,234 +103,306 @@ fun PredictionScreen(viewModel: PredictionViewModel, onNavigateToNotifications: 
                     )
                 }
             }
+        },
+        floatingActionButton = {
+            // Bouton pour accéder aux stations proches
+            FloatingActionButton(
+                onClick = { onNavigateToStations() },
+                containerColor = Color(0xFF4F46E5)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = "Stations à proximité",
+                    tint = Color.White
+                )
+            }
         }
     ) { paddingValues ->
-          LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(Color(0xFFF3F4F6))
         ) {
-            // Statistiques rapides
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // Carte d'affluence actuelle
-                    Card(
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(16.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                        ) {
-                            Text(
-                                text = "Affluence actuelle",
-                                color = Color.Gray,
-                                fontSize = 14.sp
-                            )
-
-                            Text(
-                                text = "${stationInfo.currentTraffic}",
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF4F46E5)
-                            )
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.ArrowUpward,
-                                    contentDescription = "Tendance à la hausse",
-                                    tint = Color.Green,
-                                    modifier = Modifier.size(16.dp)
-                                )
-
-                                Text(
-                                    text = "+${stationInfo.trend}% vs moyenne",
-                                    fontSize = 12.sp,
-                                    color = Color.Green
-                                )
-                            }
-                        }
-                    }
-
-                    // Carte pic attendu
-                    Card(
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(16.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                        ) {
-                            Text(
-                                text = "Pic attendu",
-                                color = Color.Gray,
-                                fontSize = 14.sp
-                            )
-
-                            Text(
-                                text = "${stationInfo.peakTraffic}",
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF4F46E5)
-                            )
-
-                            Text(
-                                text = "à ${stationInfo.peakTime}",
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
-                        }
-                    }
+            when (val state = uiState) {
+                is PredictionViewModel.UiState.Loading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .align(Alignment.Center),
+                        color = Color(0xFF4F46E5)
+                    )
                 }
-            }
 
-            // Ajouter avant la définition des prédictions horaires
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Sélectionner une date",
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(bottom = 16.dp)
+                is PredictionViewModel.UiState.Error -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Erreur",
+                            tint = Color.Red,
+                            modifier = Modifier.size(64.dp)
                         )
 
-                        // Jours de la semaine
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            listOf("L", "M", "M", "J", "V", "S", "D").forEach { day ->
-                                Text(
-                                    text = day,
-                                    color = Color.Gray,
-                                    fontSize = 14.sp
-                                )
-                            }
-                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            text = "Erreur de chargement des données",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // Jours du mois (version simplifiée)
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                        Text(
+                            text = state.message,
+                            color = Color.Gray
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Button(
+                            onClick = { viewModel.refresh() },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4F46E5))
                         ) {
-                            for (i in 1..7) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .background(
-                                            if (i == 3) Color(0xFF4F46E5) else Color(0xFFF3F4F6),
-                                            shape = RoundedCornerShape(8.dp)
-                                        ),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = i.toString(),
-                                        color = if (i == 3) Color.White else Color.Black
-                                    )
-                                }
-                            }
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "Réessayer",
+                                tint = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Réessayer", color = Color.White)
                         }
                     }
                 }
-            }
 
-            // Prédictions horaires
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Prévisions horaires",
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-
-                        predictions.forEach { prediction ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = prediction.time,
-                                    modifier = Modifier.width(48.dp),
-                                    fontSize = 14.sp
-                                )
-
-                                Box(
+                is PredictionViewModel.UiState.Success -> {
+                    LazyColumn {
+                        // Indicateur de données de secours si nécessaire
+                        if (state.isFallbackData) {
+                            item {
+                                Card(
                                     modifier = Modifier
-                                        .weight(1f)
-                                        .height(8.dp)
-                                        .background(Color(0xFFEEF2FF), RoundedCornerShape(4.dp))
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF4E5))
                                 ) {
-                                    Box(
+                                    Row(
                                         modifier = Modifier
-                                            .fillMaxHeight()
-                                            .fillMaxWidth(prediction.percentage / 100f)
-                                            .background(Color(0xFF4F46E5), RoundedCornerShape(4.dp))
-                                    )
-                                }
-
-                                Row(
-                                    modifier = Modifier
-                                        .width(80.dp)
-                                        .padding(start = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = prediction.count.toString(),
-                                        color = Color.Gray,
-                                        fontSize = 14.sp
-                                    )
-
-                                    if (prediction.trend == "up") {
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
                                         Icon(
-                                            imageVector = Icons.Default.ArrowUpward,
-                                            contentDescription = "Tendance à la hausse",
-                                            tint = Color.Green,
-                                            modifier = Modifier
-                                                .size(16.dp)
-                                                .padding(start = 4.dp)
+                                            imageVector = Icons.Default.Warning,
+                                            contentDescription = "Avertissement",
+                                            tint = Color(0xFFFF9800)
                                         )
-                                    } else {
-                                        Icon(
-                                            imageVector = Icons.Default.ArrowDownward,
-                                            contentDescription = "Tendance à la baisse",
-                                            tint = Color.Red,
-                                            modifier = Modifier
-                                                .size(16.dp)
-                                                .padding(start = 4.dp)
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "Données estimées. Les données réelles ne sont pas disponibles actuellement.",
+                                            color = Color(0xFF875000)
                                         )
                                     }
                                 }
+                            }
+                        }
+
+                        // Statistiques rapides
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                // Carte d'affluence actuelle
+                                Card(
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(16.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp)
+                                    ) {
+                                        Text(
+                                            text = "Affluence actuelle",
+                                            color = Color.Gray,
+                                            fontSize = 14.sp
+                                        )
+
+                                        Text(
+                                            text = "${stationInfo.currentTraffic}",
+                                            fontSize = 24.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFF4F46E5)
+                                        )
+
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.ArrowUpward,
+                                                contentDescription = "Tendance à la hausse",
+                                                tint = Color.Green,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+
+                                            Text(
+                                                text = "+${stationInfo.trend}% vs moyenne",
+                                                fontSize = 12.sp,
+                                                color = Color.Green
+                                            )
+                                        }
+                                    }
+                                }
+
+                                // Carte pic attendu
+                                Card(
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(16.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp)
+                                    ) {
+                                        Text(
+                                            text = "Pic attendu",
+                                            color = Color.Gray,
+                                            fontSize = 14.sp
+                                        )
+
+                                        Text(
+                                            text = "${stationInfo.peakTraffic}",
+                                            fontSize = 24.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFF4F46E5)
+                                        )
+
+                                        Text(
+                                            text = "à ${stationInfo.peakTime}",
+                                            fontSize = 12.sp,
+                                            color = Color.Gray
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        // Prédictions horaires
+                        item {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text(
+                                        text = "Prévisions horaires",
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 18.sp,
+                                        modifier = Modifier.padding(bottom = 16.dp)
+                                    )
+
+                                    predictions.forEach { prediction ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 8.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = prediction.time,
+                                                modifier = Modifier.width(48.dp),
+                                                fontSize = 14.sp
+                                            )
+
+                                            Box(
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .height(8.dp)
+                                                    .background(
+                                                        Color(0xFFEEF2FF),
+                                                        RoundedCornerShape(4.dp)
+                                                    )
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .fillMaxHeight()
+                                                        .fillMaxWidth(prediction.percentageCapacity / 100f)
+                                                        .background(
+                                                            Color(0xFF4F46E5),
+                                                            RoundedCornerShape(4.dp)
+                                                        )
+                                                )
+                                            }
+
+                                            Row(
+                                                modifier = Modifier
+                                                    .width(80.dp)
+                                                    .padding(start = 8.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text(
+                                                    text = prediction.count.toString(),
+                                                    color = Color.Gray,
+                                                    fontSize = 14.sp
+                                                )
+
+                                                if (prediction.trend == "up") {
+                                                    Icon(
+                                                        imageVector = Icons.Default.ArrowUpward,
+                                                        contentDescription = "Tendance à la hausse",
+                                                        tint = Color.Green,
+                                                        modifier = Modifier
+                                                            .size(16.dp)
+                                                            .padding(start = 4.dp)
+                                                    )
+                                                } else {
+                                                    Icon(
+                                                        imageVector = Icons.Default.ArrowDownward,
+                                                        contentDescription = "Tendance à la baisse",
+                                                        tint = Color.Red,
+                                                        modifier = Modifier
+                                                            .size(16.dp)
+                                                            .padding(start = 4.dp)
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Bouton de rafraîchissement
+                        item {
+                            Button(
+                                onClick = { viewModel.refresh() },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4F46E5))
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = "Rafraîchir",
+                                    tint = Color.White
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Rafraîchir", color = Color.White)
                             }
                         }
                     }
