@@ -36,14 +36,23 @@ class LocationManager(private val context: Context) {
         }
 
         return try {
+            // Vérifier à nouveau les permissions juste avant l'appel
+            if (!hasLocationPermission()) {
+                throw SecurityException("Location permission is not granted")
+            }
+
             suspendCancellableCoroutine { continuation ->
-                fusedLocationClient.lastLocation
-                    .addOnSuccessListener { location ->
-                        continuation.resume(location)
-                    }
-                    .addOnFailureListener { exception ->
-                        continuation.resumeWithException(exception)
-                    }
+                try {
+                    fusedLocationClient.lastLocation
+                        .addOnSuccessListener { location ->
+                            continuation.resume(location)
+                        }
+                        .addOnFailureListener { exception ->
+                            continuation.resumeWithException(exception)
+                        }
+                } catch (e: SecurityException) {
+                    continuation.resumeWithException(e)
+                }
             }
         } catch (e: Exception) {
             null
@@ -59,20 +68,29 @@ class LocationManager(private val context: Context) {
         val cancellationTokenSource = CancellationTokenSource()
 
         return try {
-            suspendCancellableCoroutine { continuation ->
-                fusedLocationClient.getCurrentLocation(
-                    Priority.PRIORITY_HIGH_ACCURACY,
-                    cancellationTokenSource.token
-                )
-                    .addOnSuccessListener { location ->
-                        continuation.resume(location)
-                    }
-                    .addOnFailureListener { exception ->
-                        continuation.resumeWithException(exception)
-                    }
+            // Vérifier à nouveau les permissions juste avant l'appel
+            if (!hasLocationPermission()) {
+                throw SecurityException("Location permission is not granted")
+            }
 
-                continuation.invokeOnCancellation {
-                    cancellationTokenSource.cancel()
+            suspendCancellableCoroutine { continuation ->
+                try {
+                    fusedLocationClient.getCurrentLocation(
+                        Priority.PRIORITY_HIGH_ACCURACY,
+                        cancellationTokenSource.token
+                    )
+                        .addOnSuccessListener { location ->
+                            continuation.resume(location)
+                        }
+                        .addOnFailureListener { exception ->
+                            continuation.resumeWithException(exception)
+                        }
+
+                    continuation.invokeOnCancellation {
+                        cancellationTokenSource.cancel()
+                    }
+                } catch (e: SecurityException) {
+                    continuation.resumeWithException(e)
                 }
             }
         } catch (e: Exception) {
