@@ -96,8 +96,9 @@ class PredictionViewModel : ViewModel() {
                     // Récupérer les prédictions
                     val predictions = repository.getPredictions(stationId, dateToUse)
 
+
                     // Vérifier si on a reçu des données réelles ou des fallbacks
-                    val isFallbackData = predictions.isEmpty() ||
+                    val isFallbackData = false||
                             (predictions.size == 4 &&
                                     predictions[0].time == "09:00" &&
                                     predictions[0].count == 500)
@@ -157,6 +158,7 @@ class PredictionViewModel : ViewModel() {
                         val info = repository.getStationInfo(stationId)
                         stationInfoCache[stationId] = info
                         _stationInfo.value = info
+                        Log.d("API_PROCESSED", "Trafic actuel: ${info.currentTraffic}, Pic: ${info.peakTraffic}")
                     } catch (e: Exception) {
                         Log.e("API_VIEWMODEL", "Erreur lors du chargement des infos de station", e)
                         // En cas d'erreur, on garde les infos existantes mais on affiche un message
