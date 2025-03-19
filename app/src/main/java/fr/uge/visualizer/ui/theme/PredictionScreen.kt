@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -32,7 +33,8 @@ import androidx.compose.ui.platform.LocalContext
 fun PredictionScreen(
     viewModel: PredictionViewModel,
     onNavigateToNotifications: () -> Unit = {},
-    onNavigateToStations: () -> Unit = {}
+    onNavigateToStations: () -> Unit = {},
+    onNavigateToLegal: () -> Unit = {} // Nouveau paramètre pour la navigation vers l'écran légal
 ) {
     val context = LocalContext.current
     val stationInfo by viewModel.stationInfo.collectAsState()
@@ -92,15 +94,29 @@ fun PredictionScreen(
                         }
                     }
 
-                    // Ajouter l'icône de notification
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = "Notifications",
-                        tint = Color.White,
-                        modifier = Modifier
-                            .clickable { onNavigateToNotifications() }
-                            .size(24.dp)
-                    )
+                    // Actions de la barre supérieure
+                    Row {
+                        // Icône d'info légale
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "Informations légales",
+                            tint = Color.White,
+                            modifier = Modifier
+                                .clickable { onNavigateToLegal() }
+                                .padding(end = 16.dp)
+                                .size(24.dp)
+                        )
+
+                        // Icône de notification
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Notifications",
+                            tint = Color.White,
+                            modifier = Modifier
+                                .clickable { onNavigateToNotifications() }
+                                .size(24.dp)
+                        )
+                    }
                 }
             }
         },
@@ -403,6 +419,21 @@ fun PredictionScreen(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text("Rafraîchir", color = Color.White)
+                            }
+                        }
+
+                        // Lien vers les informations légales
+                        item {
+                            TextButton(
+                                onClick = { onNavigateToLegal() },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Text(
+                                    text = "Conditions légales d'utilisation",
+                                    color = Color(0xFF4F46E5)
+                                )
                             }
                         }
                     }
