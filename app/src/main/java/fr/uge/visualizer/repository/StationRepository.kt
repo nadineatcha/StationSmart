@@ -138,6 +138,7 @@ class StationRepository {
                     api.getStationInfo(stationId)
                 }
                 Log.d("API_CALL", "Succès: informations station reçues")
+                Log.d("API_RAW", "Données brutes reçues: $result")
                 result
             } catch (e: Exception) {
                 Log.e("API_CALL", "Erreur lors de l'appel API: ${e.message}", e)
