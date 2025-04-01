@@ -29,6 +29,7 @@ import fr.uge.visualizer.viewmodel.NotificationViewModel
 @Composable
 fun NotificationScreen(viewModel: NotificationViewModel, onNavigateBack: () -> Unit = {}) {
     val notifications by viewModel.notifications.collectAsState()
+    val selectedFilter by viewModel.selectedFilter.collectAsState()
     val groupedNotifications = notifications.groupBy { it.group }
 
     Scaffold(
@@ -75,26 +76,26 @@ fun NotificationScreen(viewModel: NotificationViewModel, onNavigateBack: () -> U
                     modifier = Modifier.padding(16.dp)
                 ) {
                     FilterChip(
-                        selected = true,
-                        onClick = { },
+                        selected = selectedFilter == NotificationViewModel.NotificationFilter.ALL,
+                        onClick = { viewModel.setFilter(NotificationViewModel.NotificationFilter.ALL) },
                         label = { Text("Toutes") },
                         modifier = Modifier.padding(end = 8.dp)
                     )
                     FilterChip(
-                        selected = false,
-                        onClick = { },
+                        selected = selectedFilter == NotificationViewModel.NotificationFilter.ALERTS,
+                        onClick = { viewModel.setFilter(NotificationViewModel.NotificationFilter.ALERTS) },
                         label = { Text("Alertes") },
                         modifier = Modifier.padding(end = 8.dp)
                     )
                     FilterChip(
-                        selected = false,
-                        onClick = { },
+                        selected = selectedFilter == NotificationViewModel.NotificationFilter.TRAFFIC,
+                        onClick = { viewModel.setFilter(NotificationViewModel.NotificationFilter.TRAFFIC) },
                         label = { Text("Trafic") },
                         modifier = Modifier.padding(end = 8.dp)
                     )
                     FilterChip(
-                        selected = false,
-                        onClick = { },
+                        selected = selectedFilter == NotificationViewModel.NotificationFilter.STATIONS,
+                        onClick = { viewModel.setFilter(NotificationViewModel.NotificationFilter.STATIONS) },
                         label = { Text("Stations") },
                         modifier = Modifier.padding(end = 8.dp)
                     )
@@ -102,18 +103,35 @@ fun NotificationScreen(viewModel: NotificationViewModel, onNavigateBack: () -> U
             }
 
             // Notifications par groupe
-            groupedNotifications.forEach { (group, groupNotifications) ->
+            if (groupedNotifications.isEmpty()) {
                 item {
-                    Text(
-                        text = group,
-                        color = Color.Gray,
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 64.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Aucune notification dans cette catégorie",
+                            color = Color.Gray,
+                            fontSize = 16.sp
+                        )
+                    }
                 }
+            } else {
+                groupedNotifications.forEach { (group, groupNotifications) ->
+                    item {
+                        Text(
+                            text = group,
+                            color = Color.Gray,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                        )
+                    }
 
-                items(groupNotifications) { notification ->
-                    NotificationCard(notification = notification)
+                    items(groupNotifications) { notification ->
+                        NotificationCard(notification = notification)
+                    }
                 }
             }
         }

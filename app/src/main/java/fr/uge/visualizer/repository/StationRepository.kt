@@ -2,6 +2,7 @@ package fr.uge.visualizer.repository
 
 import android.util.Log
 import fr.uge.visualizer.model.HourlyPrediction
+import fr.uge.visualizer.model.Notification
 import fr.uge.visualizer.model.Station
 import fr.uge.visualizer.model.StationInfo
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +36,9 @@ interface StationApi {
         @Query("lat") latitude: Double,
         @Query("lon") longitude: Double
     ): List<Station>
+
+    @GET("notifications")
+    suspend fun getNotifications(): List<Notification>
 }
 
 class StationRepository {
@@ -82,7 +86,7 @@ class StationRepository {
             .build()
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:32257/")
+            .baseUrl("http://10.0.2.2:32580/")
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -130,19 +134,88 @@ class StationRepository {
         throw lastException ?: IllegalStateException("Toutes les tentatives ont échoué")
     }
 
-    suspend fun getStationInfo(stationId: String): StationInfo {
+    // Méthode pour obtenir les notifications
+    suspend fun getNotifications(): List<Notification> {
         return withContext(Dispatchers.IO) {
             try {
-                Log.d("API_CALL", "Tentative d'appel à getStationInfo avec stationId=$stationId")
+                Log.d("API_CALL", "Tentative d'appel à getNotifications")
                 val result = retryOnServerError {
-                    api.getStationInfo(stationId)
+                    api.getNotifications()
                 }
-                Log.d("API_CALL", "Succès: informations station reçues")
-                Log.d("API_RAW", "Données brutes reçues: $result")
+                Log.d("API_CALL", "Succès: ${result.size} notifications reçues")
                 result
             } catch (e: Exception) {
                 Log.e("API_CALL", "Erreur lors de l'appel API: ${e.message}", e)
-                // En cas d'erreur, retourner des données par défaut
+                // En cas d'erreur, utiliser des données de secours
+                listOf(
+                    Notification(
+                        id = listOf("1"),
+                        title = listOf("Trafic dense à Châtelet"),
+                        message = listOf("Affluence importante prévue entre 17h et 19h."),
+                        time = listOf("Il y a 5 minutes"),
+                        type = listOf("urgent"),
+                        group = listOf("Aujourd'hui"),
+                        category = listOf("traffic")
+                    ),
+                    Notification(
+                        id = listOf("2"),
+                        title = listOf("Mise à jour des prévisions"),
+                        message = listOf("Nouvelles données disponibles pour votre trajet habituel."),
+                        time = listOf("Il y a 2 heures"),
+                        type = listOf("info"),
+                        group = listOf("Aujourd'hui"),
+                        category = listOf("info")
+                    ),
+                    Notification(
+                        id = listOf("3"),
+                        title = listOf("Trafic fluide"),
+                        message = listOf("Le trafic est redevenu normal sur votre ligne."),
+                        time = listOf("Hier à 18:30"),
+                        type = listOf("success"),
+                        group = listOf("Hier"),
+                        category = listOf("traffic")
+                    )
+                )
+            }
+        }
+    }
+
+    // Méthode pour obtenir les prédictions
+    suspend fun getPredictions(stationId: String, date: String): List<HourlyPrediction> {
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.d("API_CALL", "Tentative de récupération des prédictions pour la station $stationId")
+                val result = retryOnServerError {
+                    api.getPredictions(stationId, date)
+                }
+                Log.d("API_CALL", "Succès: ${result.size} prédictions reçues")
+                result
+            } catch (e: Exception) {
+                Log.e("API_CALL", "Erreur lors de la récupération des prédictions", e)
+                // Données de secours
+                listOf(
+                    HourlyPrediction("09:00", 500, 30, "up"),
+                    HourlyPrediction("12:00", 1200, 65, "up"),
+                    HourlyPrediction("15:00", 800, 45, "down"),
+                    HourlyPrediction("18:00", 2100, 90, "up")
+                )
+            }
+        }
+    }
+
+    // Méthode pour obtenir les informations de station
+    suspend fun getStationInfo(stationId: String): StationInfo {
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.d("API_CALL", "Tentative de récupération des informations pour la station $stationId")
+                val result = retryOnServerError {
+                    api.getStationInfo(stationId)
+                }
+                Log.d("API_CALL", "Succès: informations de station reçues")
+                result
+            } catch (e: Exception) {
+                Log.e("API_CALL", "Erreur lors de la récupération des informations de station", e)
+                // Données de secours
                 StationInfo(
                     id = stationId,
                     name = "Station $stationId",
@@ -156,51 +229,34 @@ class StationRepository {
         }
     }
 
-    suspend fun getPredictions(stationId: String, date: String): List<HourlyPrediction> {
-        return withContext(Dispatchers.IO) {
-            try {
-                Log.d("API_CALL", "Tentative d'appel à getPredictions avec stationId=$stationId, date=$date")
-                val result = retryOnServerError {
-                    api.getPredictions(stationId, date)
-                }
-
-                // Vérification pour détecter les problèmes potentiels
-                result.forEach { prediction ->
-                    if (prediction.time.isEmpty()) {
-                        Log.w("API_CALL", "Attention: Une prédiction a un champ time vide")
-                    }
-                }
-
-                Log.d("API_CALL", "Succès: ${result.size} prédictions reçues")
-                result
-            } catch (e: Exception) {
-                Log.e("API_CALL", "Erreur lors de l'appel API: ${e.message}", e)
-                // En cas d'erreur, utiliser des données simulées
-                listOf(
-                    HourlyPrediction("09:00", 500, 30, "up"),
-                    HourlyPrediction("12:00", 1200, 65, "up"),
-                    HourlyPrediction("15:00", 800, 45, "down"),
-                    HourlyPrediction("18:00", 2100, 90, "up")
-                )
-            }
-        }
-    }
-
+    // Méthode pour obtenir les stations à proximité
     suspend fun getNearbyStations(latitude: Double, longitude: Double): List<Station> {
         return withContext(Dispatchers.IO) {
             try {
-                Log.d("API_CALL", "Tentative d'appel à getNearbyStations avec lat=$latitude, lon=$longitude")
+                Log.d("API_CALL", "Tentative de récupération des stations à proximité de lat=$latitude, lon=$longitude")
                 val result = retryOnServerError {
                     api.getNearbyStations(latitude, longitude)
                 }
                 Log.d("API_CALL", "Succès: ${result.size} stations reçues")
                 result
             } catch (e: Exception) {
-                Log.e("API_CALL", "Erreur lors de l'appel API: ${e.message}", e)
-                // En cas d'erreur, utiliser des données simulées
+                Log.e("API_CALL", "Erreur lors de la récupération des stations à proximité", e)
+                // Données de secours
                 listOf(
-                    Station("1", "Châtelet", "1, 4, 7, 11, 14", 48.8586, 2.3491),
-                    Station("2", "Les Halles", "4, A, B", 48.8637, 2.3453)
+                    Station(
+                        id = "1",
+                        name = "Châtelet",
+                        lines = "1, 4, 7, 11, 14",
+                        latitude = 48.8586,
+                        longitude = 2.3491
+                    ),
+                    Station(
+                        id = "2",
+                        name = "Les Halles",
+                        lines = "4, A, B",
+                        latitude = 48.8637,
+                        longitude = 2.3453
+                    )
                 )
             }
         }

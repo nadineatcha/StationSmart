@@ -21,14 +21,14 @@ data class HourlyPrediction(
 )
 
 data class Notification(
-    val id: String = "",
-    val title: String = "",
-    val message: String = "",
-    val time: String = "",
-    val type: String = "", // "urgent", "info", "success"
-    val group: String = "" // "Aujourd'hui", "Hier", "Cette semaine"
+    val id: List<String>,
+    val title: List<String>,
+    val message: List<String>,
+    val time: List<String>,
+    val type: List<String>,
+    val group: List<String>,
+    val category: List<String>
 )
-
 data class Station(
     val id: String = "",
     val name: String = "",

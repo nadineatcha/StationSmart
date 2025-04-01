@@ -1,4 +1,3 @@
-// StationViewModel.kt dans fr.uge.visualizer.viewmodel
 package fr.uge.visualizer.viewmodel
 
 import android.app.Application
@@ -70,4 +69,3 @@ class StationViewModel(application: Application) : AndroidViewModel(application)
         return locationManager.hasLocationPermission()
     }
 }
-
