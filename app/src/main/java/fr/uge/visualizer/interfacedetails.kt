@@ -27,12 +27,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
+//import com.google.firebase.firestore.GeoPoint
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
+import com.google.gson.reflect.TypeToken
 import fr.uge.visualizer.ui.theme.MonDetailsTheme
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import java.io.InputStreamReader
 
 // Définition des types de lignes
 enum class LineType {
@@ -40,46 +45,87 @@ enum class LineType {
     METRO
 }
 
-// Classe pour représenter une ligne avec son type
-data class Line(
-    val name: String,
-    val type: LineType // Type de ligne (METRO ou RER)
+
+// Classes de données pour le JSON
+data class JsonLocation(
+    val latitude: Double,
+    val longitude: Double
 )
 
-// Classe Station avec une liste de lignes et des horaires d'ouverture
+data class JsonLine(
+    val name: String,
+    val type: String
+)
+
+data class JsonStation(
+    val name: String,
+    val location: JsonLocation,
+    val address: String,
+    val lines: List<JsonLine>,
+    @SerializedName("dailyPassengers") val dailyPassengers: Int,
+    @SerializedName("peakHours") val peakHours: String,
+    @SerializedName("openingHours") val openingHours: String
+) {
+    fun toStation(): Station {
+        return Station(
+            name = name,
+            location = GeoPoint(location.latitude, location.longitude),
+            address = address,
+            lines = lines.map { line ->
+                Line(
+                    name = line.name,
+                    type = when (line.type) {
+                        "RER" -> LineType.RER
+                        "METRO" -> LineType.METRO
+                        else -> LineType.METRO
+                    }
+                )
+            },
+            dailyPassengers = dailyPassengers,
+            peakHours = peakHours,
+            openingHours = openingHours
+        )
+    }
+}
+
+// Classes originales
+data class Line(
+    val name: String,
+    val type: LineType
+)
+
 data class Station(
     val name: String,
     val location: GeoPoint,
-    val address: String, // Adresse complète
-    val lines: List<Line>, // Liste de lignes avec leur type
+    val address: String,
+    val lines: List<Line>,
     val dailyPassengers: Int,
-    val peakHours: String, // Heures de pointe
-    val openingHours: String // Horaires d'ouverture
+    val peakHours: String,
+    val openingHours: String
 )
 
-// Fonction pour obtenir la couleur spécifique à chaque ligne
 fun getLineColor(line: String): Color {
     return when (line) {
-        "1" -> Color(0xFFF3D03E) // Jaune
-        "2" -> Color(0xFF0065AE) // Bleu
-        "3" -> Color(0xFF9B642B) // Marron
-        "4" -> Color(0xFFBE418D) // Rose
-        "5" -> Color(0xFFFF7F27) // Orange
-        "6" -> Color(0xFF6EC4B0) // Vert clair
-        "7" -> Color(0xFFF59EB6) // Rose clair
-        "8" -> Color(0xFFC7A8D9) // Violet
-        "9" -> Color(0xFFD1C5A6) // Beige
-        "10" -> Color(0xFFE3B32A) // Or
-        "11" -> Color(0xFF8E6538) // Marron foncé
-        "12" -> Color(0xFF007852) // Vert foncé
-        "13" -> Color(0xFF98D4E2) // Bleu clair
-        "14" -> Color(0xFF662483) // Violet foncé
-        "A" -> Color(0xFFE2231A) // Rouge
-        "B" -> Color(0xFF7BA3DC) // Bleu ciel
-        "C" -> Color(0xFFF9A01B) // Orange
-        "D" -> Color(0xFF00A74A) // Vert
-        "E" -> Color(0xFFD48FCD) // Rose
-        else -> Color.Gray // Couleur par défaut
+        "1" -> Color(0xFFF3D03E)
+        "2" -> Color(0xFF0065AE)
+        "3" -> Color(0xFF9B642B)
+        "4" -> Color(0xFFBE418D)
+        "5" -> Color(0xFFFF7F27)
+        "6" -> Color(0xFF6EC4B0)
+        "7" -> Color(0xFFF59EB6)
+        "8" -> Color(0xFFC7A8D9)
+        "9" -> Color(0xFFD1C5A6)
+        "10" -> Color(0xFFE3B32A)
+        "11" -> Color(0xFF8E6538)
+        "12" -> Color(0xFF007852)
+        "13" -> Color(0xFF98D4E2)
+        "14" -> Color(0xFF662483)
+        "A" -> Color(0xFFE2231A)
+        "B" -> Color(0xFF7BA3DC)
+        "C" -> Color(0xFFF9A01B)
+        "D" -> Color(0xFF00A74A)
+        "E" -> Color(0xFFD48FCD)
+        else -> Color.Gray
     }
 }
 
@@ -87,20 +133,26 @@ fun getLineColor(line: String): Color {
 class interfacedetails : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Configuration d'OSMDroid
         Configuration.getInstance().load(this, getSharedPreferences("osm", MODE_PRIVATE))
-
         setContent {
             MonDetailsTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = Color.White
-                ) {
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     StationFinderApp()
                 }
             }
         }
+    }
+}
+
+private fun loadStationsFromJson(context: Context): List<Station> {
+    return try {
+        val inputStream = context.assets.open("stations.json")
+        val reader = InputStreamReader(inputStream)
+        val type = object : TypeToken<List<JsonStation>>() {}.type
+        Gson().fromJson<List<JsonStation>>(reader, type).map { it.toStation() }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        emptyList()
     }
 }
 
@@ -117,23 +169,10 @@ fun BottomNavigationBar() {
     NavigationBar {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
-                icon = {
-                    Icon(
-                        icons[index],
-                        contentDescription = item
-                    )
-                },
+                icon = { Icon(icons[index], contentDescription = item) },
                 label = { Text(item) },
                 selected = selectedItem == index,
-                onClick = {
-                    selectedItem = index
-                    // Ajoutez ici la logique de navigation ou d'action pour chaque élément
-                    when (index) {
-                        0 -> { /* Action pour Accueil */ }
-                        1 -> { /* Action pour Notifications */ }
-                        2 -> { /* Action pour Paramètres */ }
-                    }
-                }
+                onClick = { selectedItem = index }
             )
         }
     }
@@ -141,73 +180,30 @@ fun BottomNavigationBar() {
 
 @Composable
 fun StationFinderApp() {
-    val stations = remember {
-        listOf(
-            Station(
-                "Châtelet-Les Halles",
-                GeoPoint(48.8620, 2.3472),
-                "1 Place Marguerite de Navarre, 75001 Paris",
-                listOf(
-                    Line("1", LineType.METRO),
-                    Line("4", LineType.METRO),
-                    Line("7", LineType.METRO),
-                    Line("11", LineType.METRO),
-                    Line("14", LineType.METRO),
-                    Line("A", LineType.RER),
-                    Line("B", LineType.RER),
-                    Line("D", LineType.RER)
-                ),
-                750000,
-                "7h-9h | 17h-19h",
-                "Ouvert tous les jours de 5h30 à 1h00"
-            ),
-            Station(
-                "Gare du Nord",
-                GeoPoint(48.8809, 2.3553),
-                "18 Rue de Dunkerque, 75010 Paris",
-                listOf(
-                    Line("2", LineType.METRO),
-                    Line("4", LineType.METRO),
-                    Line("5", LineType.METRO),
-                    Line("B", LineType.RER),
-                    Line("D", LineType.RER),
-                    Line("E", LineType.RER)
-                ),
-                700000,
-                "7h-9h | 17h-19h",
-                "Ouvert tous les jours de 5h00 à 1h30"
-            )
-        )
-    }
+    val context = LocalContext.current
+    val stations = remember { loadStationsFromJson(context) }
 
     var searchQuery by remember { mutableStateOf("") }
     var selectedStation by remember { mutableStateOf<Station?>(null) }
     var showInfo by remember { mutableStateOf(false) }
     var showSuggestions by remember { mutableStateOf(false) }
 
-    // Filtrer les stations selon la recherche
-    val filteredStations = stations.filter {
-        it.name.contains(searchQuery, ignoreCase = true)
-    }
+    val filteredStations = stations.filter { it.name.contains(searchQuery, ignoreCase = true) }
 
-    Scaffold(
-        bottomBar = { BottomNavigationBar() }
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .background(Color.White)
             ) {
-                // Carte interactive OpenStreetMap
                 OsmMapView(
-                    stations = if (selectedStation != null) listOf(selectedStation!!) else emptyList(),
+                    stations = selectedStation?.let { listOf(it) } ?: emptyList(),
                     selectedStation = selectedStation,
                     onStationSelected = { station ->
                         selectedStation = station
@@ -218,14 +214,12 @@ fun StationFinderApp() {
                     modifier = Modifier.fillMaxSize()
                 )
 
-                // Conteneur pour la barre de recherche et les suggestions
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
                         .zIndex(1f)
                 ) {
-                    // Barre de recherche
                     SearchBar(
                         query = searchQuery,
                         onQueryChange = {
@@ -237,25 +231,25 @@ fun StationFinderApp() {
                         }
                     )
 
-                    // Liste des suggestions
                     if (showSuggestions && filteredStations.isNotEmpty()) {
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .heightIn(max = 200.dp),
-                            color = Color.White,
-                            shadowElevation = 4.dp
+                            color = MaterialTheme.colorScheme.surface,
+                            shadowElevation = 6.dp,
+                            tonalElevation = 6.dp,
+                            shape = MaterialTheme.shapes.medium
                         ) {
                             LazyColumn {
                                 items(filteredStations.size) { index ->
-                                    val station = filteredStations[index]
                                     StationSuggestionItem(
-                                        station = station,
+                                        station = filteredStations[index],
                                         onClick = {
-                                            selectedStation = station
+                                            selectedStation = filteredStations[index]
                                             showInfo = true
                                             showSuggestions = false
-                                            searchQuery = station.name
+                                            searchQuery = filteredStations[index].name
                                         }
                                     )
                                 }
@@ -265,17 +259,17 @@ fun StationFinderApp() {
                 }
             }
 
-            // Bouton pour afficher les informations de la station
             if (selectedStation != null) {
                 Button(
                     onClick = { showInfo = !showInfo },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F51B5)),
-                    shape = MaterialTheme.shapes.medium
+                        .padding(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    shape = MaterialTheme.shapes.large,
+                    elevation = ButtonDefaults.buttonElevation(8.dp)
                 ) {
-                    Text("Informations sur la station", color = Color.White)
+                    Text("Voir les détails de la station", color = MaterialTheme.colorScheme.onPrimary)
                 }
 
                 if (showInfo) {
@@ -286,7 +280,6 @@ fun StationFinderApp() {
     }
 }
 
-// Barre de recherche
 @Composable
 fun SearchBar(
     query: String,
@@ -322,7 +315,6 @@ fun SearchBar(
     )
 }
 
-// Carte OpenStreetMap
 @Composable
 fun OsmMapView(
     stations: List<Station>,
@@ -339,13 +331,13 @@ fun OsmMapView(
                 setTileSource(TileSourceFactory.MAPNIK)
                 setMultiTouchControls(true)
                 controller.setZoom(15.0)
-                controller.setCenter(GeoPoint(48.8566, 2.3522)) // Centre sur Paris par défaut
+                controller.setCenter(GeoPoint(48.8566, 2.3522))
             }
         },
         update = { mapView ->
-            mapView.overlays.clear() // Supprime les anciens marqueurs
+            mapView.overlays.clear()
             stations.forEach { station ->
-                val marker = Marker(mapView).apply {
+                Marker(mapView).apply {
                     position = station.location
                     title = station.name
                     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
@@ -356,23 +348,16 @@ fun OsmMapView(
                         onStationSelected(station)
                         true
                     }
-                }
-                mapView.overlays.add(marker)
+                }.also { mapView.overlays.add(it) }
             }
 
-            // Centrer sur la station sélectionnée ou sur Paris
             val centerPoint = selectedStation?.location ?: GeoPoint(48.8566, 2.3522)
-            mapView.controller.apply {
-                setZoom(15.0)
-                animateTo(centerPoint, 15.0, 1000L) // Animation fluide
-            }
-
-            mapView.invalidate() // Rafraîchit la carte
+            mapView.controller.animateTo(centerPoint, 15.0, 1000L)
+            mapView.invalidate()
         }
     )
 }
 
-// Élément de suggestion de station
 @Composable
 fun StationSuggestionItem(
     station: Station,
@@ -398,15 +383,10 @@ fun StationSuggestionItem(
                 color = Color.Gray
             )
         }
-        Icon(
-            Icons.Default.LocationOn,
-            contentDescription = "Location",
-            tint = Color(0xFF3F51B5)
-        )
+        Icon(Icons.Default.LocationOn, contentDescription = "Location", tint = Color(0xFF3F51B5))
     }
 }
 
-// Panneau d'informations
 @Composable
 fun InfoPanel(station: Station) {
     var selectedTab by remember { mutableStateOf(0) }
@@ -469,9 +449,12 @@ fun InfoPanel(station: Station) {
     }
 }
 
-// Onglet d'informations
 @Composable
-fun InfoTab(text: String, icon: ImageVector, onClick: () -> Unit) {
+fun InfoTab(
+    text: String,
+    icon: ImageVector,
+    onClick: () -> Unit
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -502,7 +485,6 @@ fun LignesContent(lines: List<Line>) {
             val line = lines[index]
             val backgroundColor = getLineColor(line.name)
 
-            // Définir la forme en fonction du type de ligne
             Box(
                 modifier = Modifier
                     .padding(4.dp)
@@ -511,14 +493,10 @@ fun LignesContent(lines: List<Line>) {
             ) {
                 when (line.type) {
                     LineType.METRO -> {
-                        // Ligne de métro avec un cercle
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
-                                .background(
-                                    color = backgroundColor,
-                                    shape = CircleShape
-                                ),
+                                .background(color = backgroundColor, shape = CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -530,14 +508,10 @@ fun LignesContent(lines: List<Line>) {
                         }
                     }
                     LineType.RER -> {
-                        // Ligne RER avec un carré aux coins arrondis
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
-                                .background(
-                                    color = backgroundColor,
-                                    shape = MaterialTheme.shapes.medium
-                                ),
+                                .background(color = backgroundColor, shape = MaterialTheme.shapes.medium),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
