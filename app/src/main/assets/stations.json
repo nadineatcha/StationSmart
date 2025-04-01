@@ -1,0 +1,408 @@
+[
+  {
+    "name": "Gare du Nord",
+    "location": { "latitude": 48.8809, "longitude": 2.3553 },
+    "address": "18 Rue de Dunkerque, 75010 Paris",
+    "lines": [
+      { "name": "B", "type": "RER" },
+      { "name": "D", "type": "RER" },
+      { "name": "4", "type": "METRO" },
+      { "name": "5", "type": "METRO" }
+    ],
+    "dailyPassengers": 700000,
+    "peakHours": "07:00-09:00,17:00-19:00",
+    "openingHours": "05:00-01:00"
+  },
+  {
+    "name": "Châtelet - Les Halles",
+    "location": { "latitude": 48.8619, "longitude": 2.3470 },
+    "address": "1 Place Marguerite de Navarre, 75001 Paris",
+    "lines": [
+      { "name": "A", "type": "RER" },
+      { "name": "B", "type": "RER" },
+      { "name": "D", "type": "RER" },
+      { "name": "1", "type": "METRO" },
+      { "name": "4", "type": "METRO" },
+      { "name": "7", "type": "METRO" },
+      { "name": "11", "type": "METRO" },
+      { "name": "14", "type": "METRO" }
+    ],
+    "dailyPassengers": 750000,
+    "peakHours": "07:30-09:30,17:30-19:30",
+    "openingHours": "04:45-01:30"
+  },
+  {
+    "name": "Gare de Lyon",
+    "location": { "latitude": 48.8445, "longitude": 2.3737 },
+    "address": "Place Louis-Armand, 75012 Paris",
+    "lines": [
+      { "name": "1", "type": "METRO" },
+      { "name": "14", "type": "METRO" },
+      { "name": "A", "type": "RER" },
+      { "name": "D", "type": "RER" }
+    ],
+    "dailyPassengers": 650000,
+    "peakHours": "07:15-09:45,17:00-20:00",
+    "openingHours": "05:00-01:15"
+  },
+  {
+    "name": "Saint-Lazare",
+    "location": { "latitude": 48.8762, "longitude": 2.3245 },
+    "address": "13 Rue d'Amsterdam, 75008 Paris",
+    "lines": [
+      { "name": "3", "type": "METRO" },
+      { "name": "12", "type": "METRO" },
+      { "name": "13", "type": "METRO" },
+      { "name": "14", "type": "METRO" },
+      { "name": "E", "type": "RER" }
+    ],
+    "dailyPassengers": 600000,
+    "peakHours": "07:00-09:30,17:15-19:45",
+    "openingHours": "05:15-01:00"
+  },
+  {
+    "name": "Montparnasse-Bienvenüe",
+    "location": { "latitude": 48.8432, "longitude": 2.3219 },
+    "address": "Place Raoul-Dautry, 75015 Paris",
+    "lines": [
+      { "name": "4", "type": "METRO" },
+      { "name": "6", "type": "METRO" },
+      { "name": "12", "type": "METRO" },
+      { "name": "13", "type": "METRO" }
+    ],
+    "dailyPassengers": 550000,
+    "peakHours": "07:30-09:45,17:00-19:30",
+    "openingHours": "05:30-01:00"
+  },
+  {
+    "name": "Gare de l'Est",
+    "location": { "latitude": 48.8766, "longitude": 2.3588 },
+    "address": "Place du 11 Novembre 1918, 75010 Paris",
+    "lines": [
+      { "name": "4", "type": "METRO" },
+      { "name": "5", "type": "METRO" },
+      { "name": "7", "type": "METRO" }
+    ],
+    "dailyPassengers": 500000,
+    "peakHours": "07:00-09:15,17:15-19:45",
+    "openingHours": "05:15-01:00"
+  },
+  {
+    "name": "La Défense",
+    "location": { "latitude": 48.8919, "longitude": 2.2386 },
+    "address": "15 Parvis de la Défense, 92060 Nanterre",
+    "lines": [
+      { "name": "1", "type": "METRO" },
+      { "name": "2", "type": "METRO" },
+      { "name": "A", "type": "RER" }
+    ],
+    "dailyPassengers": 450000,
+    "peakHours": "07:30-09:45,17:30-20:00",
+    "openingHours": "05:00-01:00"
+  },
+  {
+    "name": "Opéra",
+    "location": { "latitude": 48.8708, "longitude": 2.3322 },
+    "address": "Place de l'Opéra, 75009 Paris",
+    "lines": [
+      { "name": "3", "type": "METRO" },
+      { "name": "7", "type": "METRO" },
+      { "name": "8", "type": "METRO" }
+    ],
+    "dailyPassengers": 400000,
+    "peakHours": "08:00-10:00,17:00-19:30",
+    "openingHours": "05:30-01:00"
+  },
+  {
+    "name": "Bastille",
+    "location": { "latitude": 48.8531, "longitude": 2.3690 },
+    "address": "Place de la Bastille, 75012 Paris",
+    "lines": [
+      { "name": "1", "type": "METRO" },
+      { "name": "5", "type": "METRO" },
+      { "name": "8", "type": "METRO" }
+    ],
+    "dailyPassengers": 380000,
+    "peakHours": "07:45-09:30,17:30-19:45",
+    "openingHours": "05:15-01:00"
+  },
+  {
+    "name": "République",
+    "location": { "latitude": 48.8674, "longitude": 2.3636 },
+    "address": "Place de la République, 75011 Paris",
+    "lines": [
+      { "name": "3", "type": "METRO" },
+      { "name": "5", "type": "METRO" },
+      { "name": "8", "type": "METRO" },
+      { "name": "9", "type": "METRO" },
+      { "name": "11", "type": "METRO" }
+    ],
+    "dailyPassengers": 420000,
+    "peakHours": "07:30-09:45,17:15-19:45",
+    "openingHours": "05:00-01:15"
+  }
+,
+  {
+    "name": "Nation",
+    "location": { "latitude": 48.8481, "longitude": 2.3959 },
+    "address": "Place de la Nation, 75012 Paris",
+    "lines": [
+      { "name": "1", "type": "METRO" },
+      { "name": "2", "type": "METRO" },
+      { "name": "6", "type": "METRO" },
+      { "name": "9", "type": "METRO" },
+      { "name": "A", "type": "RER" }
+    ],
+    "dailyPassengers": 410000,
+    "peakHours": "07:15-09:30,17:00-19:45",
+    "openingHours": "05:00-01:15"
+  },
+  {
+    "name": "Trocadéro",
+    "location": { "latitude": 48.8636, "longitude": 2.2875 },
+    "address": "Place du Trocadéro, 75016 Paris",
+    "lines": [
+      { "name": "6", "type": "METRO" },
+      { "name": "9", "type": "METRO" }
+    ],
+    "dailyPassengers": 320000,
+    "peakHours": "09:00-11:30,14:00-18:30",
+    "openingHours": "05:30-01:00"
+  },
+  {
+    "name": "Place de Clichy",
+    "location": { "latitude": 48.8836, "longitude": 2.3272 },
+    "address": "Place de Clichy, 75017 Paris",
+    "lines": [
+      { "name": "2", "type": "METRO" },
+      { "name": "13", "type": "METRO" }
+    ],
+    "dailyPassengers": 290000,
+    "peakHours": "07:30-09:45,17:15-19:30",
+    "openingHours": "05:15-01:00"
+  },
+  {
+    "name": "Barbès-Rochechouart",
+    "location": { "latitude": 48.8839, "longitude": 2.3494 },
+    "address": "Boulevard de la Chapelle, 75018 Paris",
+    "lines": [
+      { "name": "2", "type": "METRO" },
+      { "name": "4", "type": "METRO" }
+    ],
+    "dailyPassengers": 310000,
+    "peakHours": "07:00-09:30,16:45-19:15",
+    "openingHours": "05:00-01:00"
+  },
+  {
+    "name": "Denfert-Rochereau",
+    "location": { "latitude": 48.8342, "longitude": 2.3325 },
+    "address": "Place Denfert-Rochereau, 75014 Paris",
+    "lines": [
+      { "name": "4", "type": "METRO" },
+      { "name": "6", "type": "METRO" },
+      { "name": "B", "type": "RER" }
+    ],
+    "dailyPassengers": 340000,
+    "peakHours": "07:15-09:45,17:00-19:30",
+    "openingHours": "05:15-01:00"
+  },
+  {
+    "name": "Père Lachaise",
+    "location": { "latitude": 48.8628, "longitude": 2.3864 },
+    "address": "Boulevard de Ménilmontant, 75020 Paris",
+    "lines": [
+      { "name": "2", "type": "METRO" },
+      { "name": "3", "type": "METRO" }
+    ],
+    "dailyPassengers": 270000,
+    "peakHours": "07:30-09:15,17:00-19:00",
+    "openingHours": "05:30-01:00"
+  },
+  {
+    "name": "Franklin D. Roosevelt",
+    "location": { "latitude": 48.8696, "longitude": 2.3108 },
+    "address": "Avenue des Champs-Élysées, 75008 Paris",
+    "lines": [
+      { "name": "1", "type": "METRO" },
+      { "name": "9", "type": "METRO" }
+    ],
+    "dailyPassengers": 360000,
+    "peakHours": "08:00-11:00,16:00-20:00",
+    "openingHours": "05:30-01:15"
+  },
+  {
+    "name": "Gare d'Austerlitz",
+    "location": { "latitude": 48.8422, "longitude": 2.3658 },
+    "address": "85 Quai d'Austerlitz, 75013 Paris",
+    "lines": [
+      { "name": "5", "type": "METRO" },
+      { "name": "10", "type": "METRO" },
+      { "name": "C", "type": "RER" }
+    ],
+    "dailyPassengers": 380000,
+    "peakHours": "07:00-09:30,17:15-19:45",
+    "openingHours": "05:00-01:00"
+  },
+  {
+    "name": "Odéon",
+    "location": { "latitude": 48.8522, "longitude": 2.3397 },
+    "address": "Place de l'Odéon, 75006 Paris",
+    "lines": [
+      { "name": "4", "type": "METRO" },
+      { "name": "10", "type": "METRO" }
+    ],
+    "dailyPassengers": 250000,
+    "peakHours": "08:30-11:00,14:30-18:30",
+    "openingHours": "05:45-01:00"
+  },
+  {
+    "name": "Concorde",
+    "location": { "latitude": 48.8656, "longitude": 2.3214 },
+    "address": "Place de la Concorde, 75008 Paris",
+    "lines": [
+      { "name": "1", "type": "METRO" },
+      { "name": "8", "type": "METRO" },
+      { "name": "12", "type": "METRO" }
+    ],
+    "dailyPassengers": 330000,
+    "peakHours": "08:00-11:00,17:00-20:00",
+    "openingHours": "05:30-01:15"
+  },
+
+  {
+    "name": "Abbesses",
+    "location": { "latitude": 48.8841, "longitude": 2.3386 },
+    "address": "Place des Abbesses, 75018 Paris",
+    "lines": [
+      { "name": "12", "type": "METRO" }
+    ],
+    "dailyPassengers": 12000,
+    "peakHours": "08:00-10:00,17:00-19:00",
+    "openingHours": "05:30-01:15"
+  },
+  {
+    "name": "Alésia",
+    "location": { "latitude": 48.8308, "longitude": 2.3251 },
+    "address": "Avenue du Général Leclerc, 75014 Paris",
+    "lines": [
+      { "name": "4", "type": "METRO" }
+    ],
+    "dailyPassengers": 22000,
+    "peakHours": "07:30-09:30,17:00-19:30",
+    "openingHours": "05:30-01:15"
+  },
+  {
+    "name": "Anvers",
+    "location": { "latitude": 48.8827, "longitude": 2.3443 },
+    "address": "Boulevard de Rochechouart, 75018 Paris",
+    "lines": [
+      { "name": "2", "type": "METRO" }
+    ],
+    "dailyPassengers": 15000,
+    "peakHours": "08:00-10:00,16:30-19:00",
+    "openingHours": "05:30-01:15"
+  },
+  {
+    "name": "Arts et Métiers",
+    "location": { "latitude": 48.8655, "longitude": 2.3551 },
+    "address": "Rue Réaumur, 75003 Paris",
+    "lines": [
+      { "name": "3", "type": "METRO" },
+      { "name": "11", "type": "METRO" }
+    ],
+    "dailyPassengers": 18000,
+    "peakHours": "07:45-09:45,17:15-19:15",
+    "openingHours": "05:30-01:15"
+  },
+  {
+    "name": "Balard",
+    "location": { "latitude": 48.8384, "longitude": 2.2788 },
+    "address": "Place Balard, 75015 Paris",
+    "lines": [
+      { "name": "8", "type": "METRO" }
+    ],
+    "dailyPassengers": 13000,
+    "peakHours": "07:00-09:00,17:00-19:00",
+    "openingHours": "05:30-01:15"
+  },
+  {
+    "name": "Belleville",
+    "location": { "latitude": 48.8722, "longitude": 2.3768 },
+    "address": "Boulevard de Belleville, 75020 Paris",
+    "lines": [
+      { "name": "2", "type": "METRO" },
+      { "name": "11", "type": "METRO" }
+    ],
+    "dailyPassengers": 20000,
+    "peakHours": "07:15-09:15,17:30-19:30",
+    "openingHours": "05:30-01:15"
+  },
+  {
+    "name": "Bercy",
+    "location": { "latitude": 48.8401, "longitude": 2.3810 },
+    "address": "Boulevard de Bercy, 75012 Paris",
+    "lines": [
+      { "name": "6", "type": "METRO" },
+      { "name": "14", "type": "METRO" }
+    ],
+    "dailyPassengers": 25000,
+    "peakHours": "07:30-09:30,17:15-19:15",
+    "openingHours": "05:30-01:15"
+  },
+  {
+    "name": "Bir-Hakeim",
+    "location": { "latitude": 48.8553, "longitude": 2.2895 },
+    "address": "Quai de Grenelle, 75015 Paris",
+    "lines": [
+      { "name": "6", "type": "METRO" }
+    ],
+    "dailyPassengers": 17000,
+    "peakHours": "08:00-10:00,17:00-19:00",
+    "openingHours": "05:30-01:15"
+  },
+  {
+    "name": "Bonne Nouvelle",
+    "location": { "latitude": 48.8695, "longitude": 2.3492 },
+    "address": "Boulevard de Bonne Nouvelle, 75010 Paris",
+    "lines": [
+      { "name": "8", "type": "METRO" },
+      { "name": "9", "type": "METRO" }
+    ],
+    "dailyPassengers": 16000,
+    "peakHours": "07:45-09:45,17:15-19:15",
+    "openingHours": "05:30-01:15"
+  },
+  {
+    "name": "Cambronne",
+    "location": { "latitude": 48.8474, "longitude": 2.3013 },
+    "address": "Place Cambronne, 75015 Paris",
+    "lines": [
+      { "name": "6", "type": "METRO" }
+    ],
+    "dailyPassengers": 14000,
+    "peakHours": "07:15-09:15,17:00-19:00",
+    "openingHours": "05:30-01:15"
+  },
+  {
+    "name": "Chemin Vert",
+    "location": { "latitude": 48.8575, "longitude": 2.3690 },
+    "address": "Rue de Chemin Vert, 75011 Paris",
+    "lines": [
+      { "name": "8", "type": "METRO" }
+    ],
+    "dailyPassengers": 11000,
+    "peakHours": "07:30-09:30,17:15-19:15",
+    "openingHours": "05:30-01:15"
+  },
+  {
+    "name": "Cluny - La Sorbonne",
+    "location": { "latitude": 48.8510, "longitude": 2.3440 },
+    "address": "Boulevard Saint-Michel, 75005 Paris",
+    "lines": [
+      { "name": "10", "type": "METRO" }
+    ],
+    "dailyPassengers": 12500,
+    "peakHours": "08:00-10:00,17:00-19:00",
+    "openingHours": "05:30-01:15"
+  }
+]
