@@ -20,14 +20,15 @@ data class HourlyPrediction(
     val trend: String = "" // "up" ou "down"
 )
 
+// Dans PredictionModels.kt
 data class Notification(
-    val id: List<String>,
-    val title: List<String>,
-    val message: List<String>,
-    val time: List<String>,
-    val type: List<String>,
-    val group: List<String>,
-    val category: List<String>
+    val id: String = "",
+    val title: String = "",
+    val message: String = "",
+    val time: String = "",
+    val type: String = "", // "urgent", "info", "success"
+    val group: String = "", // "Aujourd'hui", "Hier", "Cette semaine"
+    val category: String = "" // "traffic", "stations", "info"
 )
 data class Station(
     val id: String = "",

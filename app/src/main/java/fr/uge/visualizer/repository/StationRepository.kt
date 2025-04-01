@@ -1,6 +1,9 @@
 package fr.uge.visualizer.repository
 
 import android.util.Log
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializer
+import com.google.gson.reflect.TypeToken
 import fr.uge.visualizer.model.HourlyPrediction
 import fr.uge.visualizer.model.Notification
 import fr.uge.visualizer.model.Station
@@ -17,6 +20,30 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+
+// Classe d'adaptation pour les notifications de l'API
+data class ApiNotification(
+    val id: List<String> = listOf(),
+    val title: List<String> = listOf(),
+    val message: List<String> = listOf(),
+    val time: List<String> = listOf(),
+    val type: List<String> = listOf(),
+    val group: List<String> = listOf(),
+    val category: List<String> = listOf()
+)
+
+// Extension pour convertir ApiNotification en Notification
+fun ApiNotification.toNotification(): Notification {
+    return Notification(
+        id = id.firstOrNull() ?: "",
+        title = title.firstOrNull() ?: "",
+        message = message.firstOrNull() ?: "",
+        time = time.firstOrNull() ?: "",
+        type = type.firstOrNull() ?: "",
+        group = group.firstOrNull() ?: "",
+        category = category.firstOrNull() ?: ""
+    )
+}
 
 // Interface pour les endpoints API
 interface StationApi {
@@ -38,57 +65,66 @@ interface StationApi {
     ): List<Station>
 
     @GET("notifications")
-    suspend fun getNotifications(): List<Notification>
+    suspend fun getNotifications(): List<ApiNotification>
 }
 
 class StationRepository {
     private val api: StationApi
-
-    init {
-        // Création d'un intercepteur pour les logs
-        val loggingInterceptor = HttpLoggingInterceptor { message ->
-            Log.d("API_NETWORK", message)
-        }.apply {
+    private val client = OkHttpClient.Builder()
+        .addInterceptor(HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
-        }
+        })
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .build()
 
-        // Intercepteur pour les détails de la requête et réponse
-        val requestResponseInterceptor = { chain: okhttp3.Interceptor.Chain ->
-            val request = chain.request()
-            Log.d("API_REQUEST", "URL: ${request.url}")
-            Log.d("API_REQUEST", "Headers: ${request.headers}")
-            try {
-                val response = chain.proceed(request)
-                Log.d("API_RESPONSE", "Code: ${response.code}")
-                if (!response.isSuccessful) {
-                    Log.e("API_RESPONSE", "Erreur ${response.code}: ${response.message}")
-                    try {
-                        Log.e("API_RESPONSE", "Body: ${response.peekBody(Long.MAX_VALUE).string()}")
-                    } catch (e: Exception) {
-                        Log.e("API_RESPONSE", "Impossible de lire le corps de la réponse: ${e.message}")
+    // Dans la classe StationRepository, modifiez le bloc init
+    init {
+        // Reste du code...
+
+        // Créer un Gson personnalisé avec un adaptateur pour les tableaux
+        val gson = GsonBuilder()
+            .registerTypeAdapter(
+                object : TypeToken<List<ApiNotification>>() {}.type,
+                JsonDeserializer<List<ApiNotification>> { json, typeOfT, context ->
+                    val notifications = ArrayList<ApiNotification>()
+                    val jsonArray = json.asJsonArray
+
+                    for (i in 0 until jsonArray.size()) {
+                        val jsonObject = jsonArray.get(i).asJsonObject
+
+                        val id = jsonObject.getAsJsonArray("id").map { it.asString }
+                        val title = jsonObject.getAsJsonArray("title").map { it.asString }
+                        val message = jsonObject.getAsJsonArray("message").map { it.asString }
+                        val time = jsonObject.getAsJsonArray("time").map { it.asString }
+                        val type = jsonObject.getAsJsonArray("type").map { it.asString }
+                        val group = jsonObject.getAsJsonArray("group").map { it.asString }
+                        val category = jsonObject.getAsJsonArray("category").map { it.asString }
+
+                        notifications.add(
+                            ApiNotification(
+                                id = id,
+                                title = title,
+                                message = message,
+                                time = time,
+                                type = type,
+                                group = group,
+                                category = category
+                            )
+                        )
                     }
+
+                    notifications
                 }
-                response
-            } catch (e: Exception) {
-                Log.e("API_ERROR", "Exception pendant l'appel: ${e.message}")
-                throw e
-            }
-        }
+            )
+            .create()
 
-        // Client OkHttp avec les intercepteurs et des timeouts plus longs
-        val client = OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)
-            .addInterceptor(requestResponseInterceptor)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .retryOnConnectionFailure(true)
-            .build()
-
+        // Utiliser ce Gson pour Retrofit
         val retrofit = Retrofit.Builder()
             .baseUrl("http://10.0.2.2:32580/")
             .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
 
         api = retrofit.create(StationApi::class.java)
@@ -139,41 +175,72 @@ class StationRepository {
         return withContext(Dispatchers.IO) {
             try {
                 Log.d("API_CALL", "Tentative d'appel à getNotifications")
-                val result = retryOnServerError {
+                val apiNotifications = retryOnServerError {
                     api.getNotifications()
                 }
-                Log.d("API_CALL", "Succès: ${result.size} notifications reçues")
-                result
+
+                // Convertir les ApiNotification en Notification
+                val notifications = apiNotifications.map { it.toNotification() }
+
+                Log.d("API_CALL", "Succès: ${notifications.size} notifications reçues")
+                notifications
             } catch (e: Exception) {
                 Log.e("API_CALL", "Erreur lors de l'appel API: ${e.message}", e)
                 // En cas d'erreur, utiliser des données de secours
                 listOf(
                     Notification(
-                        id = listOf("1"),
-                        title = listOf("Trafic dense à Châtelet"),
-                        message = listOf("Affluence importante prévue entre 17h et 19h."),
-                        time = listOf("Il y a 5 minutes"),
-                        type = listOf("urgent"),
-                        group = listOf("Aujourd'hui"),
-                        category = listOf("traffic")
+                        id = "1",
+                        title = "Trafic dense à Châtelet",
+                        message = "Affluence importante prévue entre 17h et 19h.",
+                        time = "Il y a 5 minutes",
+                        type = "urgent",
+                        group = "Aujourd'hui",
+                        category = "traffic"
                     ),
                     Notification(
-                        id = listOf("2"),
-                        title = listOf("Mise à jour des prévisions"),
-                        message = listOf("Nouvelles données disponibles pour votre trajet habituel."),
-                        time = listOf("Il y a 2 heures"),
-                        type = listOf("info"),
-                        group = listOf("Aujourd'hui"),
-                        category = listOf("info")
+                        id = "2",
+                        title = "Mise à jour des prévisions",
+                        message = "Nouvelles données disponibles pour votre trajet habituel.",
+                        time = "Il y a 2 heures",
+                        type = "info",
+                        group = "Aujourd'hui",
+                        category = "info"
                     ),
                     Notification(
-                        id = listOf("3"),
-                        title = listOf("Trafic fluide"),
-                        message = listOf("Le trafic est redevenu normal sur votre ligne."),
-                        time = listOf("Hier à 18:30"),
-                        type = listOf("success"),
-                        group = listOf("Hier"),
-                        category = listOf("traffic")
+                        id = "3",
+                        title = "Trafic fluide",
+                        message = "Le trafic est redevenu normal sur votre ligne.",
+                        time = "Hier à 18:30",
+                        type = "success",
+                        group = "Hier",
+                        category = "traffic"
+                    ),
+                    Notification(
+                        id = "4",
+                        title = "Station Concorde fermée",
+                        message = "Station fermée pour travaux jusqu'à 18h.",
+                        time = "Hier à 10:15",
+                        type = "urgent",
+                        group = "Hier",
+                        category = "stations"
+                    ),
+                    Notification(
+                        id = "5",
+                        title = "Perturbation ligne 1",
+                        message = "Ralentissement du trafic entre Nation et Châtelet.",
+                        time = "Il y a 30 minutes",
+                        type = "urgent",
+                        group = "Aujourd'hui",
+                        category = "traffic"
+                    ),
+                    Notification(
+                        id = "6",
+                        title = "Maintenance programmée",
+                        message = "Station République fermée pour maintenance.",
+                        time = "Il y a 1 heure",
+                        type = "info",
+                        group = "Aujourd'hui",
+                        category = "stations"
                     )
                 )
             }
