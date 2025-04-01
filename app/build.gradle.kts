@@ -4,12 +4,9 @@ plugins {
 }
 
 android {
-    namespace = "fr.uge.test"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "fr.uge.test"
-        minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -50,7 +47,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -66,32 +62,4 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("org.osmdroid:osmdroid-android:6.1.16") // Bibliothèque OSM
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2") // Pour le ViewModel
-    implementation("com.google.code.gson:gson:2.8.9") // Dépendance Gson
-    implementation("androidx.preference:preference-ktx:1.2.0") // Pour la gestion des préférences
-    implementation("com.google.code.gson:gson:2.8.8")  // Gson
-    implementation("org.osmdroid:osmdroid-android:6.1.16") // OSMdro
-    implementation("androidx.navigation:navigation-compose:2.5.3")
-    implementation("androidx.compose.material:material:1.4.3")
-    implementation("androidx.compose.ui:ui:1.4.3")
-    implementation("androidx.compose.ui:ui-tooling:1.4.3")
-        // Retrofit pour les appels réseau
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
-    // ViewModel et LiveData
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
-    implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.6.1")
-    // Optionnel mais recommandé : Logging Interceptor
-    implementation ("com.squareup.okhttp3:logging-interceptor:4.10.0")
-    implementation ("androidx.compose.runtime:runtime-livedata:1.6.0")
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
-    implementation ("org.osmdroid:osmdroid-android:6.1.16")// Version minimum
-    implementation ("androidx.core:core-ktx:1.12.0")
-    implementation ("androidx.navigation:navigation-compose:2.7.7")
-    implementation("androidx.compose.material:material-icons-extended:1.6.0")
-
     }
-
-
