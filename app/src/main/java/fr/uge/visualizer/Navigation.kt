@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import fr.uge.visualizer.MainScreen
+import fr.uge.visualizer.ui.AppSettingsScreen
 import fr.uge.visualizer.ui.PredictionScreen
 import fr.uge.visualizer.ui.StationsScreen
 import fr.uge.visualizer.viewmodel.NotificationViewModel
@@ -25,7 +26,7 @@ fun AppNavigation() {
     val notificationViewModel = NotificationViewModel()
 
     // Définir la séquence de navigation : MainScreen -> Predictions -> Notifications
-    NavHost(navController = navController, startDestination = "main_screen") {
+    NavHost(navController = navController, startDestination = "settings") {
         // 1. MainScreen - votre écran d'accueil et des conditions légales
         composable("main_screen") {
             MainScreen(navController = navController)
@@ -92,5 +93,15 @@ fun AppNavigation() {
                 onNavigateToLegal = { navController.navigate("main_screen") }
             )
         }
+
+        composable("settings") { AppSettingsScreen(navController) }
+        composable("articles") { ArticlesScreen(navController) }
+        composable("confidentiality") {ConfidentialiteScreen(navController)}
+        composable("condition") { ConditionScreen(navController) }
+        composable("trafic Alert") { TraficAlertPage (navController) }
+
+
+
+
     }
 }
