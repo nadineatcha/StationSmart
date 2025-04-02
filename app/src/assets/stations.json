@@ -1,0 +1,4 @@
+[
+  {"name": "Gare du Nord", "latitude": 48.8808, "longitude": 2.3553, "trafic": 100000},
+  {"name": "Gare de Lyon", "latitude": 48.8443, "longitude": 2.3744, "trafic": 90000}
+]
