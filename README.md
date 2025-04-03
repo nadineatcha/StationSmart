@@ -135,7 +135,7 @@ Les prédictions et modèles s'appuient sur une analyse des données de trafic c
 | **TIMIZARKamélia** | Android & API | kameliatimizar@edu.univ-eiffel.fr | Accueil, carte, intégration interfaces, API |
 | **Asma KERKOURI** | Frontend | asmakerkouri@edu.univ-eiffel.fr | Interface paramètres |
 | **Sarah GARA** | Frontend | saragara@edu.univ-eiffel.fr | Interface comparaison |
-| **Ouiza Manseur** | Frontend | ouizamaseur@edu.univ-eiffel.fr | Interface (à détailler selon ta partie exacte) |
+| **Ouiza Manseur** | Frontend | ouizamaseur@edu.univ-eiffel.fr | Interface Details, carte, Json, recherche |
 
 ---
 
