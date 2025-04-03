@@ -1,152 +1,80 @@
-# StationSmart - Visualizer
+# Visualizer - Application de Prédiction du Trafic des Stations
 
-## 📱 Présentation du Projet
+## Aperçu
+Visualizer est une application Android moderne qui aide les utilisateurs à surveiller et prédire le trafic dans les gares d'Île-de-France. L'application fournit une visualisation des données en temps réel, des prédictions de trafic et des notifications personnalisées pour aider les voyageurs à prendre des décisions éclairées concernant leurs déplacements.
 
-**Nom du Projet** : Visualizer  
-**Objectif** : Développer une application mobile Android permettant de visualiser les stations de transport en Île-de-France, afficher leurs détails (adresses, horaires, lignes), et poser les bases d’un futur système de prédiction du trafic.
+## Fonctionnalités
+- **Trafic des Stations en Temps Réel** : Visualisation du niveau d'affluence actuel dans les stations
+- **Analyses Prédictives** : Consultation des prévisions de trafic tout au long de la journée
+- **Carte Interactive** : Localisation des stations sur une interface OpenStreetMap avec des indicateurs de trafic en couleur
+- **Stations à Proximité** : Recherche des stations proches de votre position
+- **Comparaison de Stations** : Comparaison des tendances de trafic entre différentes stations
+- **Alertes de Trafic** : Réception de notifications concernant les perturbations de service, les travaux de maintenance et autres événements
+- **Fonction de Recherche** : Recherche facile des stations par nom ou par ligne
 
-**Données Sources** :  
-- **Période d'analyse** : 2018-2022  
-- **Origine** : Jeu de données de fréquentation des gares d'Île-de-France  
-- **Méthodologie** : Traitement et modélisation via R dans le cadre du cours d'analyse de données
+## Spécifications Techniques
+- **SDK Minimum** : Android 24 (Android 7.0 Nougat)
+- **SDK Cible** : Android 34
+- **Architecture** : MVVM (Modèle-Vue-VueModèle)
+- **Framework UI** : Jetpack Compose
+- **Communication Backend** : Retrofit avec OkHttp
+- **Intégration de Carte** : OSMDroid (OpenStreetMap)
+- **Sérialisation** : Gson
+- **Permissions Requises** :
+    - Accès Internet
+    - Accès à la localisation (précise et approximative)
 
-### 🧠 Contextualisation des Données
-Les prédictions et modèles s'appuient sur une analyse des données de trafic couvrant :
-- Les variations saisonnières
-- Les tendances de fréquentation à long terme
-- Les effets d’événements majeurs sur la mobilité
+## Écrans
+- **Écran de Démarrage** : Introduction de l'application
+- **Écran des Conditions** : Accord utilisateur
+- **Écran Principal** : Page d'accueil avec recherche et carte
+- **Écran de Prédiction** : Prédictions de trafic pour les stations sélectionnées
+- **Écran de Comparaison** : Comparaison du trafic entre stations
+- **Écran Paramètres** : Configuration de l'application
+- **Écran Notifications** : Visualisation des notifications système
+- **Écrans Légaux** : Conditions d'utilisation et politique de confidentialité
 
----
+## Installation
+1. Clonez le dépôt
+2. Ouvrez le projet dans Android Studio
+3. Assurez-vous d'avoir la bonne version de JDK (JDK 17)
+4. Connectez-vous à votre appareil ou émulateur
+5. Exécutez l'application
 
-## 🛠️ Méthodologie de Développement
+## Intégration API
+L'application s'intègre à un service backend qui fournit :
+- Informations sur les stations
+- Données de trafic en temps réel
+- Prédictions de trafic
+- Notifications et alertes
 
-### Approche Agile
-- Développement itératif
-- Intégration continue
-- Revues de code régulières
-- Architecture modulaire
+Point de terminaison API par défaut : `http://10.0.2.2:22786/` (pour les tests sur émulateur)
 
----
+## Structure du Projet
+- **api** : Interfaces de service API et configuration du client
+- **model** : Classes de données pour les stations, prédictions et notifications
+- **repository** : Dépôts de données
+- **ui/theme** : Composants UI Compose et écrans
+- **viewmodel** : ViewModels pour chaque fonctionnalité majeure
+- **location** : Services de localisation
 
-## 🧱 Architecture Technique
+## Contribution
+Les contributions sont les bienvenues ! N'hésitez pas à soumettre une Pull Request.
 
-### Frontend
-- **Framework** : Android Jetpack Compose
-- **Langage** : Kotlin
-- **Composants** :
-  - Navigation
-  - Gestion d’état avec Kotlin Flow
-  - UI réactive
+## Licence
+MIT License
+Copyright (c) 2025 Visualizer
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-### Intégration Backend
-- **API REST** : Retrofit
-- **Analyse JSON** : Gson
-- **Journalisation réseau** : OkHttp Interceptor
-
-### Services de Localisation
-- **Géolocalisation** : Google Play Services
-- **Cartographie** : OpenStreetMap via `osmdroid`
-
----
-
-## 🚧 Défis Techniques et Solutions
-
-### 1. Gestion des Permissions de Localisation
-- Demande de permissions à l'exécution
-- Mécanisme de repli si refus
-- Intégration complète dans `MainActivity`
-
-### 2. Fiabilité des Données API
-- Mécanisme de retry pour les appels réseau
-- Données de secours en cas d'échec
-- Gestion des erreurs dans les `ViewModels`
-
-### 3. Gestion d'État
-- `StateFlow` pour la réactivité
-- `sealed class` pour représenter les états
-- Logique centralisée dans les `ViewModels`
-
----
-
-## 📈 Phases de Développement
-
-| Phase | Détails |
-|-------|---------|
-| **Semaines 1-2** | Prototype initial, maquettes UI, définition de l’API |
-| **Semaines 3-4** | Localisation, récupération des données, interfaces de base |
-| **Semaines 5-6** | Notifications, détails station, amélioration UX |
-| **Semaines 7-8** | Tests unitaires et intégration, optimisation, débogage |
-
----
-
-## 📊 Métriques de Performance
-
-- **Temps de réponse API** : < 500ms
-- **Précision de la localisation** : Haute précision
-- **Mise en cache** : Active pour limiter les appels
-- **Optimisation mémoire** : Via `Kotlin Coroutines`
-
----
-
-## 🔮 Feuille de Route
-
-- 🔁 Algorithmes de prédiction plus avancés
-- 🔍 Analyses enrichies des stations
-- 🌐 Support multilingue
-- 📴 Mode hors ligne
-
----
-
-## 💡 Leçons Apprises
-
-- Importance d’une **architecture modulaire**
-- Gestion d’état complexe et fluide
-- Stratégies robustes de gestion d’erreurs
-- Équilibre entre **UX riche** et **performances**
-
----
-
-## 🧰 Stack Technique
-
-- Kotlin
-- Jetpack Compose
-- Retrofit
-- Coroutines
-- Google Play Services
-- OkHttp
-- OpenStreetMap (osmdroid)
-
----
-
-## ✅ Recommandations d'Amélioration
-
-1. Permissions de localisation plus granulaires
-2. Mise en cache hors ligne avancée
-3. Algorithmes de prédiction plus performants
-4. Système de préférences utilisateur détaillé
-
----
-
-## 👥 Équipe de Développement
-
-| Nom | Rôle | Email | Contributions |
-|-----|------|-------|---------------|
-| **ATCHANadine** | Android & API | nadineatcha@edu.univ-eiffel.fr | Notification, prédiction, stations proches, géolocalisation, API |
-| **TIMIZARKamélia** | Android & API | kameliatimizar@edu.univ-eiffel.fr | Accueil, carte, intégration interfaces, API |
-| **Asma KERKOURI** | Frontend | asmakerkouri@edu.univ-eiffel.fr | Interface paramètres |
-| **Sarah GARA** | Frontend | saragara@edu.univ-eiffel.fr | Interface comparaison |
-| **Ouiza Manseur** | Frontend | ouizamaseur@edu.univ-eiffel.fr | Interface Details, carte, Json, recherche |
-
----
-
-## 🎓 Institution
-
-- **Université Gustave Eiffel**  
-- **Département** : Informatique et Ingénierie
-
----
-
-## 🙏 Remerciements
-
-- Nos camarades de classe pour leurs retours constructifs  
-- La communauté open-source pour les bibliothèques et outils utilisés  
+## Crédits
+Développé par :
+ATCHA Nadine
+GARA Sarra
+TIMIZAR Kamélia
+KERKOURI ASMA
+MANSEUR Ouiza
